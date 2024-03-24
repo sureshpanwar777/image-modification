@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor</title>
+    <style>
+        /* Reset Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .box {
+            width: 45%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .box h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: none; /* Hide initially */
+        }
+
+        .image-container {
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            width: 100%;
+            display: block;
+        }
+
+        #download-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        #download-icon {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        /* Form Styles */
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        form h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        form input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        form button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Editor</h1>
+    <div class="container">
+        <div class="box left-box">
+            <h2>Original Image</h2>
+            <div class="image-container">
+                <img src="" alt="Original Image" id="original-img">
+                <div id="crop-box"></div>
+            </div>
+        </div>
+        <div class="box right-box">
+            <h2>Modified Image</h2>
+            <div class="image-container">
+                <img src="" alt="Modified Image" id="modified-img">
+                <a id="download-link" download>
+                    <img src="download_icon.png" alt="Download" id="download-icon">
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form id="image-form" method="post" enctype="multipart/form-data">
+        <h2>Upload Image</h2>
+        <input type="file" id="upload-file" name="file" accept="image/*"><br><br>
+        <button type="button" id="upload-button">Upload</button>
+
+        <h2>Modify Image</h2>
+        <label for="blur">Blur Radius:</label>
+        <input type="range" id="blur" name="blur" min="1" max="21" value="1" step="2"><br>
+
+        <label for="rotate">Rotation (degrees):</label>
+        <input type="range" id="rotate" name="rotate" min="-180" max="180" value="0" step="1"><br>
+
+        <input type="checkbox" id="grayscale" name="grayscale">
+        <label for="grayscale">Grayscale</label><br>
+
+        <input type="checkbox" id="edge-detection" name="edge_detection">
+        <label for="edge-detection">Edge Detection</label><br>
+
+        <label for="brightness">Brightness:</label>
+        <input type="range" id="brightness" name="brightness" min="0" max="3" value="1" step="0.1"><br>
+
+        <label for="contrast">Contrast:</label>
+        <input type="range" id="contrast" name="contrast" min="0" max="3" value="1" step="0.1"><br>
+
+        <button type="button" id="apply-modifications">Apply Modifications</button>
+        <button type="button" id="clear-images">Clear Images</button>
+    </form>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.9/cropper.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.9/cropper.min.css" rel="stylesheet">
+
+    <script>
+        const originalImg = document.getElementById('original-img');
+        const modifiedImg = document.getElementById('modified-img');
+        const uploadButton = document.getElementById('upload-button');
+        const uploadFile = document.getElementById('upload-file');
+        let cropper;
+
+        uploadFile.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                originalImg.src = e.target.result;
+                // Initialize Cropper
+                cropper = new Cropper(originalImg, {
+                    aspectRatio: NaN,
+                    cropBoxResizable: true
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        const imageForm = document.getElementById('image-form');
+        const applyModificationsBtn = document.getElementById('apply-modifications');
+
+        applyModificationsBtn.addEventListener('click', () => {
+            if (cropper) {
+                const cropData = cropper.getData();
+                const formData = new FormData(imageForm);
+                formData.append('crop', [cropData.x, cropData.y, cropData.width, cropData.height].join(','));
+                fetch('/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    modifiedImg.src = 'data:image/jpeg;base64,' + data.modified_img;
+                    document.getElementById('download-link').href = 'data:image/jpeg;base64,' + data.modified_img;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        const clearImagesBtn = document.getElementById('clear-images');
+        clearImagesBtn.addEventListener('click', () => {
+            fetch('/clear_images', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
