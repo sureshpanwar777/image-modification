@@ -1,6 +1,6 @@
-Flask==2.1.1
-opencv-python-headless==4.5.4.60
-numpy==1.20.3
+pip==24.0
+numpy
+opencv-python
 Flask
 Flask-OAuthlib
 psycopg2
