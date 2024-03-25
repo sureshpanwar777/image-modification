@@ -17,22 +17,22 @@
         }
 
         .container {
-    display: flex;
-    justify-content: space-around; /* Align boxes evenly */
-    align-items: flex-start;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
         .box {
-    width: 45%;
-    margin: 10px;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
+            width: 45%;
+            margin: 10px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
 
         .left-box img {
             max-width: 100%;
@@ -42,9 +42,15 @@
             cursor: crosshair;
         }
 
-        .right-box img {
+        .right-box {
             max-width: 100%;
             order: 3;
+            height: auto;
+            display: none; /* Initially hide the container */
+        }
+
+        .right-box img {
+            max-width: 100%;
             height: auto;
             display: block;
             cursor: crosshair;
@@ -91,6 +97,10 @@
         button:hover {
             background-color: #45a049;
         }
+
+        .download-button {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +117,7 @@
             <h2>Modified Image</h2>
             <div class="image-container">
                 <img src="" alt="Modified Image" id="modified-img">
+                <button class="download-button" id="download-modified-img">Download Modified Image</button>
             </div>
         </div>
     </div>
@@ -145,13 +156,15 @@
     <script>
         const originalImg = document.getElementById('original-img');
         const modifiedImg = document.getElementById('modified-img');
+        const modifiedContainer = document.querySelector('.right-box'); // Get the container element
         const uploadButton = document.getElementById('upload-button');
         const uploadFile = document.getElementById('upload-file');
         let cropper;
 
         uploadFile.addEventListener('change', (event) => {
             const file = event.target.files[0];
-            const reader = new FileReader();
+            const reader = new
+            FileReader();
             reader.onload = function(e) {
                 originalImg.src = e.target.result;
                 // Initialize Cropper
@@ -165,6 +178,7 @@
 
         const imageForm = document.getElementById('image-form');
         const applyModificationsBtn = document.getElementById('apply-modifications');
+        const downloadModifiedImgBtn = document.getElementById('download-modified-img');
 
         applyModificationsBtn.addEventListener('click', () => {
             if (cropper) {
@@ -178,11 +192,22 @@
                 .then(response => response.json())
                 .then(data => {
                     modifiedImg.src = 'data:image/jpeg;base64,' + data.modified_img;
+                    modifiedContainer.style.display = 'block'; // Show the modified image container
+                    downloadModifiedImgBtn.style.display = 'block'; // Show download button
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
             }
+        });
+
+        downloadModifiedImgBtn.addEventListener('click', () => {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = modifiedImg.src;
+            downloadLink.download = 'modified_image.jpg';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
         });
 
         const clearImagesBtn = document.getElementById('clear-images');
@@ -193,6 +218,10 @@
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
+                originalImg.src = ''; // Clear original image
+                modifiedImg.src = ''; // Clear modified image
+                modifiedContainer.style.display = 'none'; // Hide the container
+                downloadModifiedImgBtn.style.display = 'none'; // Hide download button
             })
             .catch(error => {
                 console.error('Error:', error);
