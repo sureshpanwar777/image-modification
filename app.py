@@ -3,6 +3,7 @@ import os
 import cv2
 import base64
 import shutil
+from flask import send_file
 import numpy as np
 
 app = Flask(__name__)
@@ -77,6 +78,7 @@ def upload_image():
         return jsonify({'modified_img': modified_img_b64})
 
     return render_template('index.html')
+
 
 @app.route('/clear_images', methods=['POST'])
 def clear_images():
