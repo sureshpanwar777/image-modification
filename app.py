@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 import os
 import cv2
@@ -11,6 +12,15 @@ app.secret_key = 'your_secret_key'
 
 UPLOAD_FOLDER = 'temp_images'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/edit.html')
+def edit():
+    return render_template('edit.html')
 
 def apply_modifications(image, crop_box=None, blur_radius=None, rotation=None, grayscale=False, edge_detection=False,
                         brightness=None, contrast=None):
@@ -77,7 +87,7 @@ def upload_image():
 
         return jsonify({'modified_img': modified_img_b64})
 
-    return render_template('index.html')
+    return render_template('edit.html')
 
 
 @app.route('/clear_images', methods=['POST'])
