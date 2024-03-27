@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor</title>
+    <style>
+        body {
+            background-color: #a6e0f0;
+            background-image: url('static/back.jpg');
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .flashcard-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.flashcard-container form {
+    text-align: center;
+}
+
+.flashcard-container h2 {
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.flashcard-container input[type="file"] {
+    margin-bottom: 10px;
+}
+
+.flashcard-container input[type="range"] {
+    width: 80%;
+    margin: 5px auto;
+}
+
+.flashcard-container input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.flashcard-container button {
+    margin: 10px;
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.flashcard-container button:hover {
+    background-color: #45a049;
+}
+
+.flashcard-container .checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Add margin for spacing */
+}
+
+.flashcard-container .checkbox-container label {
+    margin-right: 30px; /* Add margin between checkboxes and labels */
+}
+        h1, h2 {
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .box {
+            width: 45%;
+            margin: 10px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .left-box img {
+            max-width: 100%;
+            order: 1;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+        }
+
+        .flashcard-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .right-box {
+            max-width: 100%;
+            order: 3;
+            height: auto;
+            display: none; /* Initially hide the container */
+        }
+
+        .right-box img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+        }
+
+    
+        .image-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+        }
+
+        #crop-box {
+            position: absolute;
+            border: 1px solid red;
+            pointer-events: auto;
+        }
+
+        #crop-box .cropper-view-box {
+            border: 1px solid #39f;
+        }
+
+        form {
+            text-align: center;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        input[type="range"] {
+            width: 80%;
+            margin: 5px auto;
+        }
+
+        button {
+            margin: 10px;
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .download-button {
+            display: none;
+        }
+        .upload-button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #ec0e75;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.upload-button:hover {
+    background-color: #45a049;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container" style="display: flex; justify-content: space-between;">
+        <div class="box left-box" id="original-container" style="display: none;">
+            <h2 style="text-align: center;">Original Image</h2>
+            <div class="image-container" style="text-align: center;">
+                <img src="" alt="Original Image" id="original-img" style="max-width: 100%; height: auto;">
+                <div id="crop-box"></div>
+            </div>
+        </div>
+    
+        <div class="box right-box" style="text-align: center;">
+            <h2>Modified Image</h2>
+            <div class="image-container">
+                <img src="" alt="Modified Image" id="modified-img" style="max-width: 100%; height: auto;">
+                <button class="download-button" id="download-modified-img" style="margin-top: 10px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Download Modified Image</button>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="box right-box" style="text-align: flex;">
+        <h2>Modified Image</h2>
+        <div class="image-container">
+            <img src="" alt="Modified Image" id="modified-img" style="max-width: 100%; height: auto;">
+            <button class="download-button" id="download-modified-img" style="margin-top: 10px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Download Modified Image</button>
+        </div>
+    </div>
+    
+
+    <div class="container">
+        <!-- Flashcard-like container for the form -->
+        <div class="flashcard-container">
+            <form id="image-form" method="post" enctype="multipart/form-data">
+                <h2>Edit Any Image</h2>
+                <label for="upload-file" class="upload-button">Select Image</label>
+<input type="file" id="upload-file" name="file" accept="image/*" style="display: none;"><br><br>
+
+
+                <h2>Modify Image</h2>
+                <label for="blur">Blur Radius:</label>
+                <input type="range" id="blur" name="blur" min="1" max="21" value="1" step="2"><br>
+
+                <label for="rotate">Rotation (degrees):</label>
+<input type="range" id="rotate" name="rotate" min="-180" max="180" value="0" step="1"><br>
+<span id="rotate-value">0&deg;</span> degrees<br><br>
+
+<br>
+                <div class="checkbox-container">
+    <input type="checkbox" id="grayscale" name="grayscale">
+    <label for="grayscale">Grayscale</label>
+    
+    <input type="checkbox" id="edge-detection" name="edge_detection">
+    <label for="edge-detection">Edge Detection</label>
+</div>
+<br>
+
+                <label for="brightness">Brightness:</label>
+                <input type="range" id="brightness" name="brightness" min="0" max="3" value="1" step="0.1"><br>
+
+                <label for="contrast">Contrast:</label>
+                <input type="range" id="contrast" name="contrast" min="0" max="3" value="1" step="0.1"><br>
+
+                <button type="button" id="apply-modifications">Apply Modifications</button>
+                <button type="button" id="clear-images">Clear Images</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.9/cropper.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.9/cropper.min.css" rel="stylesheet">
+
+    <script>
+        const rotateInput = document.getElementById('rotate');
+const rotateValue = document.getElementById('rotate-value');
+
+rotateInput.addEventListener('input', () => {
+    rotateValue.textContent = rotateInput.value;
+});
+
+        const originalImg = document.getElementById('original-img');
+        const modifiedImg = document.getElementById('modified-img');
+        const originalContainer = document.getElementById('original-container');
+        const modifiedContainer = document.querySelector('.right-box'); // Get the container element
+        const uploadButton = document.getElementById('upload-button');
+        const uploadFile = document.getElementById('upload-file');
+        let cropper;
+
+        uploadFile.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            const reader = new
+            FileReader();
+            reader.onload = function(e) {
+                originalContainer.style.display = 'block';
+                originalImg.src = e.target.result;
+                // Initialize Cropper
+                
+                cropper = new Cropper(originalImg, {
+                    aspectRatio: NaN,
+                    cropBoxResizable: true
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        const imageForm = document.getElementById('image-form');
+        const applyModificationsBtn = document.getElementById('apply-modifications');
+        const downloadModifiedImgBtn = document.getElementById('download-modified-img');
+
+        applyModificationsBtn.addEventListener('click', () => {
+            if (cropper) {
+                const cropData = cropper.getData();
+                const formData = new FormData(imageForm);
+                formData.append('crop', [cropData.x, cropData.y, cropData.width, cropData.height].join(','));
+                fetch('/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    modifiedImg.src = 'data:image/jpeg;base64,' + data.modified_img;
+                    modifiedContainer.style.display = 'block'; // Show the modified image container
+                    downloadModifiedImgBtn.style.display = 'block'; // Show download button
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        downloadModifiedImgBtn.addEventListener('click', () => {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = modifiedImg.src;
+            downloadLink.download = 'modified_image.jpg';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        });
+
+        const clearImagesBtn = document.getElementById('clear-images');
+        clearImagesBtn.addEventListener('click', () => {
+            fetch('/clear_images', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                originalImg.src = ''; // Clear original image
+                modifiedImg.src = ''; // Clear modified image
+                modifiedContainer.style.display = 'none'; // Hide the container
+                downloadModifiedImgBtn.style.display = 'none'; // Hide download button
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
