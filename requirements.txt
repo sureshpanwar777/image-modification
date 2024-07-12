@@ -6,7 +6,6 @@ Flask-OAuthlib
 beautifulsoup4
 nltk
 authlib
-psycopg2
 Werkzeug
 textblob
 Jinja2
