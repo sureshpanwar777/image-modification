@@ -10,11 +10,11 @@ Werkzeug
 textblob
 Jinja2
 Werkzeug
-oauthlib
 click
 gunicorn
 itsdangerous
 six
 newspaper3k
-
+oauthlib==2.1.0
+requests-oauthlib==1.1.0
 
