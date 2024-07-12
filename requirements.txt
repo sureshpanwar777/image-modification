@@ -3,8 +3,6 @@ numpy
 opencv-python
 Flask
 Flask-OAuthlib
-psycopg2
-psycopg2-binary
 beautifulsoup4
 nltk
 authlib
